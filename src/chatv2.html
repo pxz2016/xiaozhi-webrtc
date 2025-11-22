@@ -1355,30 +1355,98 @@
 
                         // 如果已经完成，直接返回
                         if (this.pc.iceGatheringState === 'complete') {
-                            console.log('ICE 候选已经收集完成');
+                            console.log('✅ ICE 候选已经收集完成');
                             resolve(true);
                             return;
                         }
 
-                        // 设置超时，避免无限等待
-                        const timeoutId = setTimeout(() => {
-                            console.warn(`ICE 收集超时 (${timeout}ms)，当前状态: ${this.pc?.iceGatheringState}`);
-                            this.pc?.removeEventListener('icegatheringstatechange', onStateChange);
-                            resolve(false);
-                        }, timeout);
+                        let candidateCount = 0;
+                        let lastCandidateTime = Date.now();
+                        let hasReceivedCandidate = false;
+                        const candidateTimeout = 2000; // 2秒内没有新候选，认为收集完成
+                        let candidateTimeoutId = null;
 
-                        // 监听状态变化
-                        const onStateChange = () => {
-                            console.log('ICE gathering state changed:', this.pc?.iceGatheringState);
-                            if (this.pc?.iceGatheringState === 'complete') {
-                                clearTimeout(timeoutId);
+                        // 清理函数
+                        const cleanup = () => {
+                            if (timeoutId) clearTimeout(timeoutId);
+                            if (candidateTimeoutId) clearTimeout(candidateTimeoutId);
+                            if (this.pc) {
                                 this.pc.removeEventListener('icegatheringstatechange', onStateChange);
-                                console.log('✅ ICE 候选收集完成');
+                                this.pc.removeEventListener('icecandidate', onCandidate);
+                            }
+                        };
+
+                        // 检查是否可以完成（基于候选收集情况）
+                        const checkCanComplete = () => {
+                            const now = Date.now();
+                            const timeSinceLastCandidate = now - lastCandidateTime;
+                            
+                            // 如果已经收到候选，且2秒内没有新候选，认为收集完成
+                            if (hasReceivedCandidate && timeSinceLastCandidate >= candidateTimeout) {
+                                console.log(`✅ ICE 候选收集完成（已收集 ${candidateCount} 个候选，${timeSinceLastCandidate}ms 内无新候选）`);
+                                cleanup();
+                                resolve(true);
+                                return true;
+                            }
+                            return false;
+                        };
+
+                        // 监听 ICE 候选事件
+                        const onCandidate = (event) => {
+                            if (event.candidate) {
+                                candidateCount++;
+                                lastCandidateTime = Date.now();
+                                hasReceivedCandidate = true;
+                                console.log(`📡 收到 ICE 候选 #${candidateCount}: type=${event.candidate.type}, protocol=${event.candidate.protocol}`);
+                                
+                                // 重置候选超时计时器
+                                if (candidateTimeoutId) clearTimeout(candidateTimeoutId);
+                                candidateTimeoutId = setTimeout(() => {
+                                    if (!checkCanComplete()) {
+                                        console.log('⏳ 候选收集暂停，继续等待状态变化...');
+                                    }
+                                }, candidateTimeout);
+                            } else {
+                                // 收到 null 候选，表示收集完成
+                                console.log('✅ ICE 候选收集完成（收到 null 候选）');
+                                cleanup();
                                 resolve(true);
                             }
                         };
 
+                        // 监听状态变化
+                        const onStateChange = () => {
+                            const state = this.pc?.iceGatheringState;
+                            console.log(`📊 ICE gathering state changed: ${state}`);
+                            
+                            if (state === 'complete') {
+                                console.log(`✅ ICE 候选收集完成（状态变为 complete，共收集 ${candidateCount} 个候选）`);
+                                cleanup();
+                                resolve(true);
+                            } else if (state === 'new') {
+                                console.log('🔄 ICE 收集状态: new（开始收集）');
+                            } else if (state === 'gathering') {
+                                console.log('⏳ ICE 收集状态: gathering（正在收集）');
+                            }
+                        };
+
+                        // 设置总超时，避免无限等待
+                        const timeoutId = setTimeout(() => {
+                            const state = this.pc?.iceGatheringState;
+                            console.warn(`⚠️ ICE 收集超时 (${timeout}ms)，当前状态: ${state}，已收集 ${candidateCount} 个候选`);
+                            cleanup();
+                            // 即使超时，如果已经收到一些候选，也算部分成功
+                            resolve(hasReceivedCandidate);
+                        }, timeout);
+
+                        // 添加事件监听器
                         this.pc.addEventListener('icegatheringstatechange', onStateChange);
+                        this.pc.addEventListener('icecandidate', onCandidate);
+
+                        // 如果当前状态已经是 gathering，立即检查一次
+                        if (this.pc.iceGatheringState === 'gathering') {
+                            console.log('⏳ ICE 收集已在进行中，等待完成...');
+                        }
                     });
                 },
                 setupDataChannel() {
