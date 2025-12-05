@@ -30,11 +30,12 @@ class AudioFaceSwapper(AudioStreamTrack):
         return new_frame
 
     async def recv(self):
+        # 接收原始音频帧
+        original_frame = await self.track.recv()
+
         if not self.xiaozhi.server:
             return self.empty_frame()
 
-        # 接收原始音频帧
-        original_frame = await self.track.recv()
         pcm_data = np.frombuffer(original_frame.planes[0], dtype=np.int16)
 
         # 使用回声消除管理器处理麦克风音频

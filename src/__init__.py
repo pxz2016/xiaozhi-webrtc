@@ -142,7 +142,6 @@ async def server(pc, offer):
         if pc.connectionState == "connected":
             await xiaozhi.start()
 
-
         if pc.connectionState in ["failed", "closed", "disconnected"]:
             # Stop all AudioFaceSwapper instances
             if xiaozhi.server:
@@ -158,10 +157,16 @@ async def server(pc, offer):
             # 将 track 实例存储在 pc 对象上
             pc.audio_track = t
         elif track.kind == "video":
-            t = VideoFaceSwapper(xiaozhi, track)
-            pc.addTrack(t)
-            # 将 track 实例存储在 pc 对象上
-            pc.video_track = t
+            # 不 addTrack 视频轨道，只消费视频帧（节省 CPU）
+            async def consume_video():
+                while True:
+                    try:
+                        frame = await track.recv()
+                        if xiaozhi and xiaozhi.server:
+                            xiaozhi.server.video_frame = frame
+                    except Exception:
+                        break
+            asyncio.create_task(consume_video())
 
     await pc.setRemoteDescription(offer)
     answer = await pc.createAnswer()

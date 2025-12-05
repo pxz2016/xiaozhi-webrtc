@@ -28,7 +28,6 @@ class XiaoZhiServer(object):
                 self.channel.readyState,
             )
 
-
     async def message_handler_callback(self, message):
         logger.info("Received message: %s %s %s", self.pc.mac_address, self.pc.client_ip, message)
         if message["type"] == "websocket" and message["state"] == "close":
@@ -81,7 +80,6 @@ class XiaoZhiServer(object):
             _, img_byte = cv2.imencode(".jpg", img_obj)
             img_byte = img_byte.tobytes()
             return await self.server.async_analyze_image(img_byte, data.get("question", "请描述这张图片"))
-
 
         from xiaozhi_sdk.utils.mcp_tool import (
             get_device_status,
