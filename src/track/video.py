@@ -48,11 +48,11 @@ class VideoFaceSwapper(VideoStreamTrack):
     async def recv(self):
         # 接收一帧视频
         frame = await self.track.recv()
-        
+
         # 保存帧供服务端使用
         if self.xiaozhi and self.xiaozhi.server:
             self.xiaozhi.server.video_frame = frame
-        
+
         # 返回原始帧
         return frame
 

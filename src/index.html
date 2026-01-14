@@ -8,11 +8,14 @@
     <meta name="description" content="XiaoZhi WebRTC 是一个基于 WebRTC 技术的实时语音聊天应用，支持多种角色选择和自定义配置，提供流畅的语音交互体验。">
     <meta name="keywords" content="WebRTC,语音聊天,实时通信,语音交互,在线聊天,WebRTC应用">
     <meta name="author" content="dairoot">
-    
+
     <link rel="icon" type="image/x-icon" href="static/favicon.ico">
     <link rel="manifest" href="/static/manifest.webmanifest">
     <meta name="theme-color" content="#1976d2">
     <script src="static/js/vue.min.js"></script>
+    <!-- i18n translations -->
+    <script src="locales/index.zh.js"></script>
+    <script src="locales/index.en.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -488,6 +491,50 @@
             white-space: nowrap;
         }
 
+        /* Language switcher */
+        .language-switcher {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 18px;
+            border-radius: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15),
+                        0 1px 3px rgba(0, 0, 0, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+            min-height: 40px;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .language-switcher:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.25),
+                        0 2px 6px rgba(0, 0, 0, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .language-switcher:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.2),
+                        inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
         .initial-actions {
             margin-top: 24px;
         }
@@ -531,31 +578,42 @@
             top: 20px;
             right: 20px;
             z-index: 1000;
-            background: #f5f5f5;
-            border: 2px solid #e0e0e0;
-            /* color: #667eea; */
-            padding: 12px 24px;
-            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 18px;
+            border-radius: 16px;
             cursor: pointer;
-            backdrop-filter: blur(10px);
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            font-size: 16px;
-            font-weight: 500;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15),
+                        0 1px 3px rgba(0, 0, 0, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+            min-height: 40px;
+            line-height: 1;
+            white-space: nowrap;
         }
 
         .settings-button:hover {
-            background: #e8e8e8;
-            border-color: #c0c0c0;
-            transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.25),
+                        0 2px 6px rgba(0, 0, 0, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.7);
         }
 
         .settings-button:active {
-            transform: translateY(0);
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.2),
+                        inset 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         /* Settings modal/panel */
@@ -699,8 +757,9 @@
 
             .role-title {
                 font-size: 24px;
-                margin-top: 20px;
+                margin-top: calc(20px + env(safe-area-inset-top, 0px) + 50px);
                 margin-bottom: 20px;
+                padding-top: 10px;
             }
 
             .carousel-container {
@@ -792,9 +851,8 @@
             .settings-button {
                 top: 12px;
                 right: 12px;
-                padding: 10px 18px;
-                font-size: 14px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                padding: 10px 16px;
+                font-size: 13px;
             }
 
             .settings-title {
@@ -805,8 +863,9 @@
         @media screen and (max-width: 375px) {
             .role-title {
                 font-size: 20px;
-                margin-top: 15px;
+                margin-top: calc(15px + env(safe-area-inset-top, 0px) + 50px);
                 margin-bottom: 15px;
+                padding-top: 10px;
             }
 
             .role-option {
@@ -895,7 +954,7 @@
             }
 
             .settings-button {
-                padding: 8px 14px;
+                padding: 10px 16px;
                 font-size: 13px;
             }
 
@@ -912,77 +971,88 @@
                 width: 14px;
                 height: 14px;
             }
+
+            .language-switcher {
+                top: 12px;
+                left: 12px;
+                padding: 10px 16px;
+                font-size: 13px;
+            }
         }
     </style>
 </head>
 
 <body>
     <div id="app">
+        <button class="language-switcher" @click="toggleLanguage">
+            <span>{{ currentLanguage === 'zh' ? '🇨🇳' : '🇺🇸' }}</span>
+            <span>{{ currentLanguage === 'zh' ? '中文' : 'English' }}</span>
+        </button>
         <button class="settings-button" @click="showSettings = true">
             <span class="button-icon">⚙️</span>
-            <span>设置</span>
+            <span>{{ t('settings') }}</span>
         </button>
 
         <div v-if="showSettings" class="settings-modal" @click.self="showSettings = false">
-            <div class="settings-panel" role="dialog" aria-modal="true" aria-label="设置">
+            <div class="settings-panel" role="dialog" aria-modal="true" :aria-label="t('settings')">
                 <div class="settings-header">
-                    <div class="settings-title">设置</div>
-                    <button class="settings-close" @click="showSettings = false" aria-label="关闭设置">✕</button>
+                    <div class="settings-title">{{ t('settings') }}</div>
+                    <button class="settings-close" @click="showSettings = false" :aria-label="t('closeSettings')">✕</button>
                 </div>
                 <div class="settings-content">
                     <div class="microphone-section">
-                        <div class="input-label">麦克风选择</div>
+                        <div class="input-label">{{ t('microphoneSelection') }}</div>
                         <select v-model="selectedAudioDeviceId" class="microphone-select" :disabled="isLoadingMicrophones">
-                            <option value="">自动选择麦克风</option>
+                            <option value="">{{ t('autoSelectMicrophone') }}</option>
                             <option v-for="device in audioInputDevices"
                                     :key="device.deviceId"
                                     :value="device.deviceId">
-                                {{ device.label || `麦克风 ${device.deviceId.slice(0, 8)}` }}
+                                {{ device.label || t('microphone') + ' ' + device.deviceId.slice(0, 8) }}
                             </option>
                         </select>
                     </div>
 
                     <div class="speaker-section">
-                        <div class="input-label">扬声器选择</div>
+                        <div class="input-label">{{ t('speakerSelection') }}</div>
                         <select v-model="selectedSpeakerDeviceId" class="microphone-select" :disabled="isLoadingSpeakers">
-                            <option value="">自动选择扬声器</option>
+                            <option value="">{{ t('autoSelectSpeaker') }}</option>
                             <option v-for="device in audioOutputDevices"
                                     :key="device.deviceId"
                                     :value="device.deviceId">
-                                {{ device.label || `扬声器 ${device.deviceId.slice(0, 8)}` }}
+                                {{ device.label || t('speaker') + ' ' + device.deviceId.slice(0, 8) }}
                             </option>
                         </select>
                     </div>
 
                     <div class="push-to-talk-section">
-                        <div class="input-label">语音模式</div>
+                        <div class="input-label">{{ t('voiceMode') }}</div>
                         <div class="voice-mode-options">
                             <label class="voice-mode-option">
                                 <input type="radio" v-model="voiceMode" value="continuous" class="voice-mode-radio">
-                                <span class="voice-mode-label">连续对话</span>
+                                <span class="voice-mode-label">{{ t('continuousConversation') }}</span>
                             </label>
                             <label class="voice-mode-option">
                                 <input type="radio" v-model="voiceMode" value="push-to-talk" class="voice-mode-radio">
-                                <span class="voice-mode-label">按住说话</span>
+                                <span class="voice-mode-label">{{ t('pushToTalk') }}</span>
                             </label>
                         </div>
                     </div>
                 </div>
                 <div class="settings-actions">
-                    <button class="initial-control-button" @click="showSettings = false">完成</button>
+                    <button class="initial-control-button" @click="showSettings = false">{{ t('done') }}</button>
                 </div>
                 <div class="author-footer">
                     <a href="https://github.com/dairoot/xiaozhi-webrtc" target="_blank" rel="noopener noreferrer" class="github-link">
                         <svg class="github-icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
                             <path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
                         </svg>
-                        <span class="github-text">作者：dairoot</span>
+                        <span class="github-text">{{ t('author') }}：dairoot</span>
                     </a>
                 </div>
             </div>
         </div>
         <div class="role-selection-container">
-            <div class="role-title">选择一个角色</div>
+            <div class="role-title">{{ t('selectRole') }}</div>
 
             <div class="carousel-container"
                  @mousedown="handleDragStart"
@@ -1005,19 +1075,19 @@
                 </div>
 
                 <div class="role-details">
-                    <div class="role-name">{{ currentRole.name }}</div>
-                    <div v-if="currentRole.name === '自定义角色'" class="role-description-input">
-                        <input type="text" 
-                               class="role-mac-input" 
-                               v-model="macAddress" 
-                               placeholder="请输入设备MAC地址"
-                               :class="{ 'error': macAddressError }" 
+                    <div class="role-name">{{ getRoleName(currentRole) }}</div>
+                    <div v-if="currentRole.name === '自定义角色' || currentRole.name === 'Custom Role'" class="role-description-input">
+                        <input type="text"
+                               class="role-mac-input"
+                               v-model="macAddress"
+                               :placeholder="t('enterMacAddress')"
+                               :class="{ 'error': macAddressError }"
                                @input="validateMacAddress">
                         <div class="role-mac-error" :class="{ 'visible': macAddressError }">
-                            请输入正确的MAC地址格式
+                            {{ t('invalidMacAddressFormat') }}
                         </div>
                     </div>
-                    <div v-else class="role-description">{{ currentRole.description }}</div>
+                    <div v-else class="role-description">{{ getRoleDescription(currentRole) }}</div>
                 </div>
 
                 <div class="carousel-navigation right" @click="nextRole">
@@ -1028,7 +1098,7 @@
             <div class="pagination">{{ currentIndex + 1 }}/{{ roles.length }}</div>
 
             <div class="action-buttons">
-                <button class="start-button" @click="goChat()" :disabled="isStartButtonDisabled">开始聊天</button>
+                <button class="start-button" @click="goChat()" :disabled="isStartButtonDisabled">{{ t('startChat') }}</button>
             </div>
         </div>
     </div>
@@ -1045,9 +1115,9 @@
             el: '#app',
             data: {
                 roles: [
-                    { id: 1, name: '台湾女友', description: '🫡 致敬虾哥 xiaozhi-esp32', macAddress: '00:00:00:00:00:aa', image: '/static/images/taiwangirl.png' },
-                    { id: 2, name: '好奇小男孩', description: '🤔 好奇小男孩', macAddress: '00:00:00:00:00:bb', image: '/static/images/curious_boy.png' },
-                    { id: 3, name: '自定义角色', description: '🫡 自定义角色', macAddress: '', image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNlMGUwZTA7c3RvcC1vcGFjaXR5OjEiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNiZGJkYmQ7c3RvcC1vcGFjaXR5OjEiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y1ZjVmNSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjcwIiByPSIzNSIgZmlsbD0idXJsKCNnKSIvPjxwYXRoIGQ9Ik01MCAxNjAgUTUwIDEyMCAxMDAgMTIwIFExNTAgMTIwIDE1MCAxNjAgWiIgZmlsbD0idXJsKCNnKSIvPjwvc3ZnPg==' }
+                    { id: 1, name: '台湾女友', nameEn: 'Taiwan Girlfriend', description: '🫡 致敬虾哥 xiaozhi-esp32', descriptionEn: '🫡 Tribute to 虾哥 xiaozhi-esp32', macAddressZh: '00:00:00:00:00:aa', macAddressEn: '00:00:00:00:00:dd', image: '/static/images/taiwangirl.png' },
+                    { id: 2, name: '好奇小男孩', nameEn: 'Curious Boy', description: '🤔 好奇小男孩', descriptionEn: '🤔 Curious Boy', macAddressZh: '00:00:00:00:00:bb', macAddressEn: '00:00:00:00:00:ee', image: '/static/images/curious_boy.png' },
+                    { id: 3, name: '自定义角色', nameEn: 'Custom Role', description: '🫡 自定义角色', descriptionEn: '🫡 Custom Role', macAddress: '', image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNlMGUwZTA7c3RvcC1vcGFjaXR5OjEiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNiZGJkYmQ7c3RvcC1vcGFjaXR5OjEiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y1ZjVmNSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjcwIiByPSIzNSIgZmlsbD0idXJsKCNnKSIvPjxwYXRoIGQ9Ik01MCAxNjAgUTUwIDEyMCAxMDAgMTIwIFExNTAgMTIwIDE1MCAxNjAgWiIgZmlsbD0idXJsKCNnKSIvPjwvc3ZnPg==' }
                 ],
                 currentIndex: 0,
                 macAddress: '',
@@ -1065,6 +1135,9 @@
                 dragStartX: 0,
                 dragCurrentX: 0,
                 dragThreshold: 50, // 拖动阈值（像素）
+                // 国际化
+                currentLanguage: 'zh', // 'zh' 或 'en'
+                i18n: null // 从外部文件加载
             },
             computed: {
                 currentRole() {
@@ -1096,7 +1169,8 @@
                 },
                 isStartButtonDisabled() {
                     // 如果选择的是自定义角色，需要验证MAC地址
-                    if (this.currentRole.name === '自定义角色') {
+                    const isCustomRole = this.currentRole.name === '自定义角色' || this.currentRole.name === 'Custom Role';
+                    if (isCustomRole) {
                         // 如果MAC地址为空或格式错误，禁用按钮
                         return !this.macAddress || this.macAddressError;
                     }
@@ -1105,14 +1179,29 @@
                 }
             },
             mounted() {
+                // 初始化国际化翻译
+                this.i18n = {
+                    zh: window.indexI18n?.zh || {},
+                    en: window.indexI18n?.en || {}
+                };
+
                 // 从本地存储加载设置
                 try {
+                    const savedLanguage = localStorage.getItem('language');
+                    if (savedLanguage && (savedLanguage === 'zh' || savedLanguage === 'en')) {
+                        this.currentLanguage = savedLanguage;
+                    } else {
+                        // 根据浏览器语言自动检测
+                        const browserLang = navigator.language || navigator.userLanguage;
+                        this.currentLanguage = browserLang.startsWith('zh') ? 'zh' : 'en';
+                    }
+
                     const savedMac = localStorage.getItem('macAddress');
                     const savedAudio = localStorage.getItem('selectedAudioDeviceId');
                     const savedSpeaker = localStorage.getItem('selectedSpeakerDeviceId');
                     const savedVoiceMode = localStorage.getItem('voiceMode');
                     const savedRoleIndex = localStorage.getItem('selectedRoleIndex');
-                    
+
                     // 先设置角色索引
                     if (savedRoleIndex) {
                         const index = parseInt(savedRoleIndex, 10);
@@ -1120,43 +1209,28 @@
                             this.currentIndex = index;
                         }
                     }
-                    
-                    // 根据角色设置MAC地址
-                    if (this.currentRole.macAddress) {
-                        // 如果角色有预设MAC地址，使用它
-                        this.macAddress = this.currentRole.macAddress;
-                    } else if (this.currentRole.name === '自定义角色') {
-                        // 如果是自定义角色，默认清空MAC地址
-                        this.macAddress = '';
-                    } else {
-                        this.macAddress = '';
-                    }
-                    
+
+                    // 根据角色和语言设置MAC地址
+                    this.updateMacAddressFromRole();
+
                     if (savedAudio) this.selectedAudioDeviceId = savedAudio;
                     if (savedSpeaker) this.selectedSpeakerDeviceId = savedSpeaker;
                     if (savedVoiceMode) this.voiceMode = savedVoiceMode;
-                    
+
                     this.validateMacAddress();
                 } catch (e) { /* 忽略本地存储错误 */ }
                 this.enumerateAudioDevices();
             },
             watch: {
+                currentLanguage(newVal) {
+                    try { localStorage.setItem('language', newVal); } catch (e) {}
+                    // 语言切换时更新MAC地址
+                    this.updateMacAddressFromRole();
+                },
                 currentIndex(newVal) {
                     try { localStorage.setItem('selectedRoleIndex', newVal.toString()); } catch (e) {}
-                    // 更新MAC地址
-                    if (this.currentRole.macAddress) {
-                        // 如果角色有预设MAC地址，使用它
-                        this.macAddress = this.currentRole.macAddress;
-                        this.validateMacAddress();
-                    } else if (this.currentRole.name === '自定义角色') {
-                        // 如果是自定义角色，清空MAC地址
-                        this.macAddress = '';
-                        this.macAddressError = false;
-                    } else {
-                        // 其他情况清空MAC地址
-                        this.macAddress = '';
-                        this.macAddressError = false;
-                    }
+                    // 角色切换时更新MAC地址
+                    this.updateMacAddressFromRole();
                 },
                 macAddress(newVal) {
                     try { localStorage.setItem('macAddress', newVal || ''); } catch (e) {}
@@ -1172,6 +1246,37 @@
                 }
             },
             methods: {
+                t(key) {
+                    return this.i18n[this.currentLanguage][key] || key;
+                },
+                toggleLanguage() {
+                    this.currentLanguage = this.currentLanguage === 'zh' ? 'en' : 'zh';
+                },
+                getRoleName(role) {
+                    return this.currentLanguage === 'zh' ? role.name : (role.nameEn || role.name);
+                },
+                getRoleDescription(role) {
+                    return this.currentLanguage === 'zh' ? role.description : (role.descriptionEn || role.description);
+                },
+                getRoleMacAddress(role) {
+                    if (!role) return '';
+                    if (role.name === '自定义角色' || role.name === 'Custom Role') {
+                        return '';
+                    }
+                    return this.currentLanguage === 'zh' 
+                        ? (role.macAddressZh || '') 
+                        : (role.macAddressEn || '');
+                },
+                updateMacAddressFromRole() {
+                    const macAddr = this.getRoleMacAddress(this.currentRole);
+                    if (macAddr) {
+                        this.macAddress = macAddr;
+                        this.validateMacAddress();
+                    } else {
+                        this.macAddress = '';
+                        this.macAddressError = false;
+                    }
+                },
                 getRoleClass(index) {
                     if (this.displayRoles.length === 1) {
                         return 'role-option center active';
@@ -1271,9 +1376,9 @@
                 },
                 handleDragEnd(e) {
                     if (!this.isDragging) return;
-                    
+
                     const dragDistance = this.dragCurrentX - this.dragStartX;
-                    
+
                     // 根据拖动距离和方向切换角色
                     if (Math.abs(dragDistance) > this.dragThreshold) {
                         if (dragDistance > 0) {
@@ -1284,7 +1389,7 @@
                             this.nextRole();
                         }
                     }
-                    
+
                     this.isDragging = false;
                     this.dragStartX = 0;
                     this.dragCurrentX = 0;
@@ -1301,9 +1406,9 @@
                 },
                 handleTouchEnd(e) {
                     if (!this.isDragging) return;
-                    
+
                     const dragDistance = this.dragCurrentX - this.dragStartX;
-                    
+
                     // 根据拖动距离和方向切换角色
                     if (Math.abs(dragDistance) > this.dragThreshold) {
                         if (dragDistance > 0) {
@@ -1314,7 +1419,7 @@
                             this.nextRole();
                         }
                     }
-                    
+
                     this.isDragging = false;
                     this.dragStartX = 0;
                     this.dragCurrentX = 0;
