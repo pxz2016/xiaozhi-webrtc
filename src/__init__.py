@@ -83,7 +83,7 @@ async def offer(request):
 
     # 使用动态ICE服务器配置
     ice_servers = ice_config.get_server_ice_servers()
-    configuration = RTCConfiguration(iceServers=ice_servers)
+    configuration = RTCConfiguration(iceServers=ice_servers, bundlePolicy="max-bundle")
     pc = RTCPeerConnection(configuration=configuration)
     pcs.add(pc)
 
@@ -198,7 +198,7 @@ def run():
     app.on_shutdown.append(on_shutdown)
 
     app.router.add_get("/", index)
-    app.router.add_get("/chat", chat)
+    # app.router.add_get("/chat", chat)
     app.router.add_get("/chatv2", chatv2)
 
     app.router.add_get("/api/ice", ice)

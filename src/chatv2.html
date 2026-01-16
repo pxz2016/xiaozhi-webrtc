@@ -1573,11 +1573,11 @@
                     }
 
                     // 在创建 RTCPeerConnection 前获取服务端 ICE 配置
-                    let iceConfig = { iceServers: [], iceCandidatePoolSize: 0 };
+                    let iceConfig = { iceServers: [], iceCandidatePoolSize: 0, bundlePolicy: "max-bundle" };
                     try {
                         const resp = await fetch('/api/ice');
                         const data = await resp.json();
-                        iceConfig = data;
+                        iceConfig = { ...data, bundlePolicy: "max-bundle" };
                         console.log('从服务器获取ICE配置:', JSON.stringify(iceConfig, null, 2));
 
                         if (!iceConfig.iceServers || iceConfig.iceServers.length === 0) {
@@ -1603,7 +1603,7 @@
                         }
                     } catch (e) {
                         console.error('❌ 获取 /api/ice 失败，使用空配置:', e);
-                        iceConfig = { iceServers: [], iceCandidatePoolSize: 0 };
+                        iceConfig = { iceServers: [], iceCandidatePoolSize: 0, bundlePolicy: "max-bundle" };
 
                         this.messages.push({
                             role: "assistant",
