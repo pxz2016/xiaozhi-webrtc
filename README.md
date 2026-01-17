@@ -1,5 +1,7 @@
 [![Banners](docs/images/banner.png)](https://github.com/dairoot/xiaozhi-webrtc)
 
+[English](README.en.md) | 简体中文
+
 # XiaoZhi WebRTC
 
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
